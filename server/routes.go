@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"cmp"
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -27,12 +28,13 @@ import (
 
 	"github.com/ollama/ollama/api"
 	"github.com/ollama/ollama/build"
+	"github.com/ollama/ollama/discover"
 	"github.com/ollama/ollama/envconfig"
-	"github.com/ollama/ollama/gpu"
 	"github.com/ollama/ollama/llm"
 	"github.com/ollama/ollama/openai"
 	"github.com/ollama/ollama/parser"
 	"github.com/ollama/ollama/runners"
+	"github.com/ollama/ollama/server/imageproc"
 	"github.com/ollama/ollama/template"
 	"github.com/ollama/ollama/types/errtypes"
 	"github.com/ollama/ollama/types/model"
@@ -119,20 +121,21 @@ func (s *Server) GenerateHandler(c *gin.Context) {
 		return
 	}
 
+	model, err := GetModel(req.Model)
+	if err != nil {
+		switch {
+		case os.IsNotExist(err):
+			c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("model '%s' not found", req.Model)})
+		case err.Error() == "invalid model name":
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
 	// expire the runner
 	if req.Prompt == "" && req.KeepAlive != nil && int(req.KeepAlive.Seconds()) == 0 {
-		model, err := GetModel(req.Model)
-		if err != nil {
-			switch {
-			case os.IsNotExist(err):
-				c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("model '%s' not found", req.Model)})
-			case err.Error() == "invalid model name":
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			default:
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			}
-			return
-		}
 		s.sched.expireRunner(model)
 
 		c.JSON(http.StatusOK, api.GenerateResponse{
@@ -169,6 +172,7 @@ func (s *Server) GenerateHandler(c *gin.Context) {
 
 	checkpointLoaded := time.Now()
 
+	// load the model
 	if req.Prompt == "" {
 		c.JSON(http.StatusOK, api.GenerateResponse{
 			Model:      req.Model,
@@ -179,9 +183,32 @@ func (s *Server) GenerateHandler(c *gin.Context) {
 		return
 	}
 
+	isMllama := checkMllamaModelFamily(model)
+	if isMllama && len(req.Images) > 1 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "this model only supports one image: more than one image sent"})
+		return
+	}
+
 	images := make([]llm.ImageData, len(req.Images))
 	for i := range req.Images {
-		images[i] = llm.ImageData{ID: i, Data: req.Images[i]}
+		if isMllama {
+			data, aspectRatioID, err := imageproc.Preprocess(req.Images[i])
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "error processing image"})
+				return
+			}
+
+			buf := new(bytes.Buffer)
+			err = binary.Write(buf, binary.LittleEndian, data)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "error processing image"})
+				return
+			}
+
+			images[i] = llm.ImageData{Data: buf.Bytes(), AspectRatioID: aspectRatioID}
+		} else {
+			images[i] = llm.ImageData{ID: i, Data: req.Images[i]}
+		}
 	}
 
 	prompt := req.Prompt
@@ -212,7 +239,11 @@ func (s *Server) GenerateHandler(c *gin.Context) {
 			}
 
 			for _, i := range images {
-				msgs = append(msgs, api.Message{Role: "user", Content: fmt.Sprintf("[img-%d]", i.ID)})
+				if isMllama {
+					msgs = append(msgs, api.Message{Role: "user", Content: "<|image|>"})
+				} else {
+					msgs = append(msgs, api.Message{Role: "user", Content: fmt.Sprintf("[img-%d]", i.ID)})
+				}
 			}
 
 			values.Messages = append(msgs, api.Message{Role: "user", Content: req.Prompt})
@@ -693,7 +724,12 @@ func (s *Server) DeleteHandler(c *gin.Context) {
 
 	m, err := ParseNamedManifest(n)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		switch {
+		case os.IsNotExist(err):
+			c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("model '%s' not found", cmp.Or(r.Model, r.Name))})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 
@@ -1230,7 +1266,7 @@ func Serve(ln net.Listener) error {
 
 	// At startup we retrieve GPU information so we can get log messages before loading a model
 	// This will log warnings to the log in case we have problems with detected GPUs
-	gpus := gpu.GetGPUInfo()
+	gpus := discover.GetGPUInfo()
 	gpus.LogDetails()
 
 	err = srvr.Serve(ln)
