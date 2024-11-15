@@ -558,6 +558,7 @@ type Options struct {
 	Mirostat         int      `json:"mirostat"`
 	MirostatTau      float32  `json:"mirostat_tau"`
 	MirostatEta      float32  `json:"mirostat_eta"`
+	Grammar          string   `json:"grammar,omitempty"`
 	PenalizeNewline  bool     `json:"penalize_nl"`
 	Stop             []string `json:"stop"`
 }
