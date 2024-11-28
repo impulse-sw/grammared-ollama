@@ -144,10 +144,6 @@ func NewLlamaServer(gpus discover.GpuInfoList, model string, ggml *GGML, adapter
 	// Loop through potential servers
 	finalErr := errors.New("no suitable llama servers found")
 
-	if len(adapters) > 1 {
-		return nil, errors.New("ollama supports only one lora adapter, but multiple were provided")
-	}
-
 	rDir, err := runners.Refresh(build.EmbedFS)
 	if err != nil {
 		return nil, err
@@ -201,8 +197,9 @@ func NewLlamaServer(gpus discover.GpuInfoList, model string, ggml *GGML, adapter
 	}
 
 	if len(adapters) > 0 {
-		// TODO: applying multiple adapters is not supported by the llama.cpp server yet
-		params = append(params, "--lora", adapters[0])
+		for _, adapter := range adapters {
+			params = append(params, "--lora", adapter)
+		}
 	}
 
 	if len(projectors) > 0 {
@@ -687,7 +684,11 @@ type CompletionResponse struct {
 
 func (s *llmServer) Completion(ctx context.Context, req CompletionRequest, fn func(CompletionResponse)) error {
 	if err := s.sem.Acquire(ctx, 1); err != nil {
-		slog.Error("Failed to acquire semaphore", "error", err)
+		if errors.Is(err, context.Canceled) {
+			slog.Info("aborting completion request due to client closing the connection")
+		} else {
+			slog.Error("Failed to acquire semaphore", "error", err)
+		}
 		return err
 	}
 	defer s.sem.Release(1)
@@ -839,13 +840,15 @@ func (s *llmServer) Completion(ctx context.Context, req CompletionRequest, fn fu
 	}
 
 	if err := scanner.Err(); err != nil {
-		if strings.Contains(err.Error(), "unexpected EOF") {
+		if strings.Contains(err.Error(), "unexpected EOF") || strings.Contains(err.Error(), "forcibly closed") {
 			s.Close()
-			msg := ""
+			var msg string
 			if s.status != nil && s.status.LastErrMsg != "" {
 				msg = s.status.LastErrMsg
+			} else {
+				msg = err.Error()
 			}
-			return fmt.Errorf("an unknown error was encountered while running the model %s", msg)
+			return fmt.Errorf("an error was encountered while running the model: %s", msg)
 		}
 
 		return fmt.Errorf("error reading llm response: %v", err)
@@ -864,7 +867,11 @@ type EmbeddingResponse struct {
 
 func (s *llmServer) Embedding(ctx context.Context, input string) ([]float32, error) {
 	if err := s.sem.Acquire(ctx, 1); err != nil {
-		slog.Error("Failed to acquire semaphore", "error", err)
+		if errors.Is(err, context.Canceled) {
+			slog.Info("aborting embedding request due to client closing the connection")
+		} else {
+			slog.Error("Failed to acquire semaphore", "error", err)
+		}
 		return nil, err
 	}
 	defer s.sem.Release(1)
@@ -1093,7 +1100,9 @@ func (s *llmServer) EstimatedTotal() uint64 {
 func (s *llmServer) EstimatedVRAMByGPU(gpuID string) uint64 {
 	for i, gpu := range s.gpus {
 		if gpu.ID == gpuID {
-			return s.estimate.GPUSizes[i]
+			if i < len(s.estimate.GPUSizes) {
+				return s.estimate.GPUSizes[i]
+			}
 		}
 	}
 	return 0
