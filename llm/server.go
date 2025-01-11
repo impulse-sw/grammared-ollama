@@ -693,7 +693,6 @@ func (s *llmServer) Completion(ctx context.Context, req CompletionRequest, fn fu
 		"mirostat_tau":      req.Options.MirostatTau,
 		"mirostat_eta":      req.Options.MirostatEta,
 		"grammar":           req.Options.Grammar,
-		"penalize_nl":       req.Options.PenalizeNewline,
 		"seed":              req.Options.Seed,
 		"stop":              req.Options.Stop,
 		"image_data":        req.Images,
