@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ollama/ollama/envconfig"
 )
 
 // StatusError is an error with an HTTP status code and message.
@@ -348,6 +350,7 @@ type ShowResponse struct {
 	Messages      []Message      `json:"messages,omitempty"`
 	ModelInfo     map[string]any `json:"model_info,omitempty"`
 	ProjectorInfo map[string]any `json:"projector_info,omitempty"`
+	Tensors       []Tensor       `json:"tensors,omitempty"`
 	ModifiedAt    time.Time      `json:"modified_at,omitempty"`
 }
 
@@ -360,9 +363,9 @@ type CopyRequest struct {
 // PullRequest is the request passed to [Client.Pull].
 type PullRequest struct {
 	Model    string `json:"model"`
-	Insecure bool   `json:"insecure,omitempty"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Insecure bool   `json:"insecure,omitempty"` // Deprecated: ignored
+	Username string `json:"username"`           // Deprecated: ignored
+	Password string `json:"password"`           // Deprecated: ignored
 	Stream   *bool  `json:"stream,omitempty"`
 
 	// Deprecated: set the model name with Model instead
@@ -464,6 +467,13 @@ type ModelDetails struct {
 	Families          []string `json:"families"`
 	ParameterSize     string   `json:"parameter_size"`
 	QuantizationLevel string   `json:"quantization_level"`
+}
+
+// Tensor describes the metadata for a given tensor.
+type Tensor struct {
+	Name  string   `json:"name"`
+	Type  string   `json:"type"`
+	Shape []uint64 `json:"shape"`
 }
 
 func (m *Metrics) Summary() {
@@ -611,7 +621,7 @@ func DefaultOptions() Options {
 
 		Runner: Runner{
 			// options set when the model is loaded
-			NumCtx:    2048,
+			NumCtx:    int(envconfig.ContextLength()),
 			NumBatch:  512,
 			NumGPU:    -1, // -1 here indicates that NumGPU should be set dynamically
 			NumThread: 0,  // let the runtime decide

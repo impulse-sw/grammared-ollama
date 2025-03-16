@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://ollama.com" />
+  <a href="https://ollama.com">
     <img alt="ollama" height="200px" src="https://github.com/ollama/ollama/assets/3325447/0d0b44e2-8f4a-4e99-9b52-a5c1c741c8f7">
   </a>
 </div>
@@ -56,6 +56,11 @@ Here are some example models that can be downloaded:
 
 | Model              | Parameters | Size  | Download                         |
 | ------------------ | ---------- | ----- | -------------------------------- |
+| Gemma 3            | 1B         | 815MB | `ollama run gemma3:1b`           |
+| Gemma 3            | 4B         | 3.3GB | `ollama run gemma3`              |
+| Gemma 3            | 12B        | 8.1GB | `ollama run gemma3:12b`          |
+| Gemma 3            | 27B        | 17GB  | `ollama run gemma3:27b`          |
+| QwQ                | 32B        | 20GB  | `ollama run qwq`                 |
 | DeepSeek-R1        | 7B         | 4.7GB | `ollama run deepseek-r1`         |
 | DeepSeek-R1        | 671B       | 404GB | `ollama run deepseek-r1:671b`    |
 | Llama 3.3          | 70B        | 43GB  | `ollama run llama3.3`            |
@@ -66,10 +71,7 @@ Here are some example models that can be downloaded:
 | Llama 3.1          | 8B         | 4.7GB | `ollama run llama3.1`            |
 | Llama 3.1          | 405B       | 231GB | `ollama run llama3.1:405b`       |
 | Phi 4              | 14B        | 9.1GB | `ollama run phi4`                |
-| Phi 3 Mini         | 3.8B       | 2.3GB | `ollama run phi3`                |
-| Gemma 2            | 2B         | 1.6GB | `ollama run gemma2:2b`           |
-| Gemma 2            | 9B         | 5.5GB | `ollama run gemma2`              |
-| Gemma 2            | 27B        | 16GB  | `ollama run gemma2:27b`          |
+| Phi 4 Mini         | 3.8B       | 2.5GB | `ollama run phi4-mini`           |
 | Mistral            | 7B         | 4.1GB | `ollama run mistral`             |
 | Moondream 2        | 1.4B       | 829MB | `ollama run moondream`           |
 | Neural Chat        | 7B         | 4.1GB | `ollama run neural-chat`         |
@@ -77,7 +79,7 @@ Here are some example models that can be downloaded:
 | Code Llama         | 7B         | 3.8GB | `ollama run codellama`           |
 | Llama 2 Uncensored | 7B         | 3.8GB | `ollama run llama2-uncensored`   |
 | LLaVA              | 7B         | 4.5GB | `ollama run llava`               |
-| Solar              | 10.7B      | 6.1GB | `ollama run solar`               |
+| Granite-3.2         | 8B         | 4.9GB | `ollama run granite3.2`          |
 
 > [!NOTE]
 > You should have at least 8 GB of RAM available to run the 7B models, 16 GB to run the 13B models, and 32 GB to run the 33B models.
@@ -277,6 +279,7 @@ See the [API documentation](./docs/api.md) for all endpoints.
 ### Web & Desktop
 
 - [Open WebUI](https://github.com/open-webui/open-webui)
+- [SwiftChat (macOS with ReactNative)](https://github.com/aws-samples/swift-chat)
 - [Enchanted (macOS native)](https://github.com/AugustDev/enchanted)
 - [Hollama](https://github.com/fmaclen/hollama)
 - [Lollms-Webui](https://github.com/ParisNeo/lollms-webui)
@@ -382,6 +385,15 @@ See the [API documentation](./docs/api.md) for all endpoints.
 - [Chipper](https://github.com/TilmanGriesel/chipper) AI interface for tinkerers (Ollama, Haystack RAG, Python)
 - [ChibiChat](https://github.com/CosmicEventHorizon/ChibiChat) (Kotlin-based Android app to chat with Ollama and Koboldcpp API endpoints)
 - [LocalLLM](https://github.com/qusaismael/localllm) (Minimal Web-App to run ollama models on it with a GUI)
+- [Ollamazing](https://github.com/buiducnhat/ollamazing) (Web extension to run Ollama models)
+- [OpenDeepResearcher-via-searxng](https://github.com/benhaotang/OpenDeepResearcher-via-searxng) (A Deep Research equivent endpoint with Ollama support for running locally)
+- [AntSK](https://github.com/AIDotNet/AntSK) (Out-of-the-box & Adaptable RAG Chatbot)
+- [MaxKB](https://github.com/1Panel-dev/MaxKB/) (Ready-to-use & flexible RAG Chatbot)
+- [yla](https://github.com/danielekp/yla) (Web interface to freely interact with your customized models)
+- [LangBot](https://github.com/RockChinQ/LangBot) (LLM-based instant messaging bots platform, with Agents, RAG features, supports multiple platforms)
+- [1Panel](https://github.com/1Panel-dev/1Panel/) (Web-based Linux Server Management Tool)
+- [AstrBot](https://github.com/Soulter/AstrBot/) (User-friendly LLM-based multi-platform chatbot with a WebUI, supporting RAG, LLM agents, and plugins integration)
+- [Reins](https://github.com/ibrahimcetin/reins) (Easily tweak parameters, customize system prompts per chat, and enhance your AI experiments with reasoning model support.)
 
 ### Cloud
 
@@ -425,6 +437,7 @@ See the [API documentation](./docs/api.md) for all endpoints.
 
 ### Apple Vision Pro
 
+- [SwiftChat](https://github.com/aws-samples/swift-chat) (Cross-platform AI chat app supporting Apple Vision Pro via "Designed for iPad")
 - [Enchanted](https://github.com/AugustDev/enchanted)
 
 ### Database
@@ -439,9 +452,10 @@ See the [API documentation](./docs/api.md) for all endpoints.
 
 - [Pacman](https://archlinux.org/packages/extra/x86_64/ollama/)
 - [Gentoo](https://github.com/gentoo/guru/tree/master/app-misc/ollama)
+- [Homebrew](https://formulae.brew.sh/formula/ollama)
 - [Helm Chart](https://artifacthub.io/packages/helm/ollama-helm/ollama)
 - [Guix channel](https://codeberg.org/tusharhero/ollama-guix)
-- [Nix package](https://search.nixos.org/packages?channel=24.05&show=ollama&from=0&size=50&sort=relevance&type=packages&query=ollama)
+- [Nix package](https://search.nixos.org/packages?show=ollama&from=0&size=50&sort=relevance&type=packages&query=ollama)
 - [Flox](https://flox.dev/blog/ollama-part-one)
 
 ### Libraries
@@ -496,14 +510,18 @@ See the [API documentation](./docs/api.md) for all endpoints.
 - [multi-llm-ts](https://github.com/nbonamy/multi-llm-ts) (A Typescript/JavaScript library allowing access to different LLM in unified API)
 - [LlmTornado](https://github.com/lofcz/llmtornado) (C# library providing a unified interface for major FOSS & Commercial inference APIs)
 - [Ollama for Zig](https://github.com/dravenk/ollama-zig)
-- [Abso](https://github.com/lunary-ai/abso/blob/main/README.md#ollama) (OpenAI-compatible TypeScript SDK for any LLM provider)
+- [Abso](https://github.com/lunary-ai/abso) (OpenAI-compatible TypeScript SDK for any LLM provider)
+- [Nichey](https://github.com/goodreasonai/nichey) is a Python package for generating custom wikis for your research topic
 
 ### Mobile
 
+- [SwiftChat](https://github.com/aws-samples/swift-chat) (Lightning-fast Cross-platform AI chat app with native UI for Android, iOS and iPad)
 - [Enchanted](https://github.com/AugustDev/enchanted)
 - [Maid](https://github.com/Mobile-Artificial-Intelligence/maid)
 - [Ollama App](https://github.com/JHubi1/ollama-app) (Modern and easy-to-use multi-platform client for Ollama)
 - [ConfiChat](https://github.com/1runeberg/confichat) (Lightweight, standalone, multi-platform, and privacy focused LLM chat interface with optional encryption)
+- [Ollama Android Chat](https://github.com/sunshine0523/OllamaServer) (No need for Termux, start the Ollama service with one click on an Android device)
+- [Reins](https://github.com/ibrahimcetin/reins) (Easily tweak parameters, customize system prompts per chat, and enhance your AI experiments with reasoning model support.)
 
 ### Extensions & Plugins
 
@@ -548,12 +566,15 @@ See the [API documentation](./docs/api.md) for all endpoints.
 - [Alfred Ollama](https://github.com/zeitlings/alfred-ollama) (Alfred Workflow)
 - [TextLLaMA](https://github.com/adarshM84/TextLLaMA) A Chrome Extension that helps you write emails, correct grammar, and translate into any language
 - [Simple-Discord-AI](https://github.com/zyphixor/simple-discord-ai)
+- [LLM Telegram Bot](https://github.com/innightwolfsleep/llm_telegram_bot) (telegram bot, primary for RP. Oobabooga-like buttons, [A1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) API integration e.t.c)
+- [mcp-llm](https://github.com/sammcj/mcp-llm) (MCP Server to allow LLMs to call other LLMs)
 
 ### Supported backends
 
 - [llama.cpp](https://github.com/ggerganov/llama.cpp) project founded by Georgi Gerganov.
 
 ### Observability
+- [Opik](https://www.comet.com/docs/opik/cookbook/ollama) is an open-source platform to debug, evaluate, and monitor your LLM applications, RAG systems, and agentic workflows with comprehensive tracing, automated evaluations, and production-ready dashboards. Opik supports native intergration to Ollama.
 - [Lunary](https://lunary.ai/docs/integrations/ollama) is the leading open-source LLM observability platform. It provides a variety of enterprise-grade features such as real-time analytics, prompt templates management, PII masking, and comprehensive agent tracing.
 - [OpenLIT](https://github.com/openlit/openlit) is an OpenTelemetry-native tool for monitoring Ollama Applications & GPUs using traces and metrics.
 - [HoneyHive](https://docs.honeyhive.ai/integrations/ollama) is an AI observability and evaluation platform for AI agents. Use HoneyHive to evaluate agent performance, interrogate failures, and monitor quality in production.
