@@ -616,7 +616,6 @@ func DefaultOptions() Options {
 		Mirostat:         0,
 		MirostatTau:      5.0,
 		MirostatEta:      0.1,
-		PenalizeNewline:  true,
 		Seed:             -1,
 
 		Runner: Runner{
