@@ -227,6 +227,7 @@ type Options struct {
 	Mirostat         int      `json:"mirostat,omitempty"`
 	MirostatTau      float32  `json:"mirostat_tau,omitempty"`
 	MirostatEta      float32  `json:"mirostat_eta,omitempty"`
+	Grammar          string   `json:"grammar,omitempty"`
 	Stop             []string `json:"stop,omitempty"`
 }
 

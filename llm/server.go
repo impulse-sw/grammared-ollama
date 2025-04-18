@@ -712,6 +712,10 @@ func (s *llmServer) Completion(ctx context.Context, req CompletionRequest, fn fu
 		opts := api.DefaultOptions()
 		req.Options = &opts
 	}
+	
+	if req.Options.Grammar != "" {
+		req.Grammar = req.Options.Grammar
+	}
 
 	if err := s.sem.Acquire(ctx, 1); err != nil {
 		if errors.Is(err, context.Canceled) {
