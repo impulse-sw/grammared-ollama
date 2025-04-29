@@ -4,9 +4,11 @@
   </a>
 </div>
 
-# Ollama
+# Grammared Ollama
 
 Get up and running with large language models.
+
+Grammared Ollama updates at least every 2 weeks or more frequently.
 
 ### macOS
 
